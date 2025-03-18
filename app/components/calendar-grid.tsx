@@ -1,13 +1,20 @@
 "use client"
+
+import type React from "react"
+
+import { useState } from "react"
 import { useAppContext } from "../context/app-context"
 import { Card, CardContent } from "@/components/ui/card"
-import React from 'react'
+import { Button } from "@/components/ui/button"
+import { X } from "lucide-react"
 
 const DAYS = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"]
 const HOURS = Array.from({ length: 13 }, (_, i) => i + 8) // 8 AM to 8 PM
 
 export function CalendarGrid() {
-  const { courses, calendarEvents, setSelectedCourse, setIsDetailOpen } = useAppContext()
+  const { courses, calendarEvents, setSelectedCourse, setIsDetailOpen, removeCourseFromWorklist } = useAppContext()
+
+  const [hoveredEvent, setHoveredEvent] = useState<string | null>(null)
 
   // Helper function to check if an event is in a specific time slot
   const getEventsForTimeSlot = (day: string, hour: number) => {
@@ -27,6 +34,11 @@ export function CalendarGrid() {
     }
   }
 
+  const handleRemoveCourse = (courseId: string, e: React.MouseEvent) => {
+    e.stopPropagation()
+    removeCourseFromWorklist(courseId)
+  }
+
   return (
     <Card className="w-full">
       <CardContent className="p-4">
@@ -41,7 +53,7 @@ export function CalendarGrid() {
 
           {/* Time slots */}
           {HOURS.map((hour) => (
-            <React.Fragment key={`hour-${hour}`}>
+            <>
               <div key={`time-${hour}`} className="h-16 flex items-center justify-end pr-2 text-sm text-gray-500">
                 {hour}:00
               </div>
@@ -90,7 +102,21 @@ export function CalendarGrid() {
                               zIndex: 10,
                             }}
                             onClick={() => handleEventClick(event)}
+                            onMouseEnter={() => setHoveredEvent(event.id)}
+                            onMouseLeave={() => setHoveredEvent(null)}
                           >
+                            {hoveredEvent === event.id && (
+                              <Button
+                                size="sm"
+                                variant="ghost"
+                                className="absolute top-0 right-0 h-6 w-6 p-0 text-gray-500 hover:text-red-600 hover:bg-red-50 z-20"
+                                onClick={(e) => handleRemoveCourse(event.courseId, e)}
+                              >
+                                <X className="h-3 w-3" />
+                                <span className="sr-only">Remove</span>
+                              </Button>
+                            )}
+
                             <span
                               className={`font-semibold ${
                                 event.color === "blue"
@@ -139,7 +165,7 @@ export function CalendarGrid() {
                   </div>
                 )
               })}
-            </React.Fragment>
+            </>
           ))}
         </div>
       </CardContent>

@@ -3,22 +3,22 @@ import type { Course, Term, Worklist, Message, CalendarEvent, GlossaryTerm } fro
 // Sample terms
 export const SAMPLE_TERMS: Term[] = [
   {
-    id: "winter-2023",
-    name: "Winter 2023",
-    startDate: "2023-01-09",
-    endDate: "2023-04-14",
+    id: "winter-2025",
+    name: "Winter 2025",
+    startDate: "2025-01-09",
+    endDate: "2025-04-14",
   },
   {
-    id: "summer-2023",
-    name: "Summer 2023",
-    startDate: "2023-05-15",
-    endDate: "2023-08-18",
+    id: "summer-2025",
+    name: "Summer 2025",
+    startDate: "2025-05-15",
+    endDate: "2025-08-18",
   },
   {
-    id: "fall-2023",
-    name: "Fall 2023",
-    startDate: "2023-09-05",
-    endDate: "2023-12-15",
+    id: "fall-2025",
+    name: "Fall 2025",
+    startDate: "2025-09-05",
+    endDate: "2025-12-15",
   },
 ]
 
@@ -206,13 +206,13 @@ export const SAMPLE_COURSES: Course[] = [
 export const SAMPLE_WORKLISTS: Worklist[] = [
   {
     id: "worklist-1",
-    name: "Winter 2023 - Science",
+    name: "Winter 2025 - Science",
     courses: ["math100", "chem121", "biol112"],
     sections: ["math100-001", "chem121-001", "biol112-001"],
   },
   {
     id: "worklist-2",
-    name: "Winter 2023 - Computer Science",
+    name: "Winter 2025 - Computer Science",
     courses: ["math100", "cpsc110", "engl110"],
     sections: ["math100-002", "cpsc110-001", "engl110-001"],
   },

@@ -117,7 +117,7 @@ export function CourseDetailPopup({ isOpen, onClose, course }: CourseDetailProps
                       <Clock className="h-4 w-4 text-gray-500 mt-0.5 flex-shrink-0" />
                       <div>
                         <div className="font-medium">Term</div>
-                        <div>Winter 2023 (January - April)</div>
+                        <div>Winter 2025 (January - April)</div>
                       </div>
                     </div>
                     <div className="flex items-start gap-2">

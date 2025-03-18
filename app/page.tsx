@@ -12,7 +12,10 @@ import { WorklistSelector } from "./components/worklist-selector"
 import { GlossaryTooltip } from "./components/glossary-tooltip"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Button } from "@/components/ui/button"
-import { Calendar, Search, BookOpen, AlertTriangle, HelpCircle, ChevronLeft, ChevronRight, ArrowLeft } from "lucide-react"
+import { Calendar, Search, BookOpen, AlertTriangle, HelpCircle, ChevronLeft, ChevronRight, ArrowLeft, Menu } from "lucide-react"
+import Image from 'next/image'
+import ubcLogo from '/public/ubc-logo.png'
+import amin from '/public/amin.jpeg'
 
 export default function RegistrationCompanion() {
   const { currentTerm, currentWorklist, conflicts, selectedCourse, isDetailOpen, setIsDetailOpen } = useAppContext()
@@ -22,13 +25,21 @@ export default function RegistrationCompanion() {
 
   return (
     <>
-    <div className="flex flex-col justify-center" style={{ backgroundColor: '#FFFFFF', height: "80px" }}>
-
+    <div className="flex flex-row items-center justify-between" style={{ backgroundColor: '#FFFFFF', height: "80px" }}>
+    <div className="flex justify-between">
+    <div className="flex gap-1" style={{ marginLeft: "20px", color: '#002144' }}>
+      <Menu className="h-6 w-6 m-4 cursor-pointer" />
+      <h1 className="text-2xl font-bold" style={{ paddingTop: "10px" }}>MENU</h1>
+      <div className="h-full ml-10 bg-slate-500" style={{ width: "1px" }}/>
+      <Image src={ubcLogo} alt="UBC Logo" width={50} height={50} className="ml-4" />
+      </div>
+    </div>
+    <Image src={amin} alt="Amin" width={50} height={50} className="mr-5 rounded-full"/>
     </div>
     <div className="flex flex-col justify-center" style={{ backgroundColor: '#002144', height: "80px" }}>
       <div className="flex gap-1" style={{ marginLeft: "20px" }}>
-      <ArrowLeft className="h-6 w-6 text-white m-4 cursor-pointer" style={{ paddingTop: "10px" }}/>
-      <h1 className="text-2xl font-bold text-white">Course Registration</h1>
+      <ArrowLeft className="h-6 w-6 text-white m-4 cursor-pointer" />
+      <h1 className="text-2xl font-bold text-white" style={{ paddingTop: "10px" }}>Course Registration</h1>
       </div>
     </div>
     <div className="flex h-3/4 bg-slate-50">

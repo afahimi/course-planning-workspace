@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion"
-import { Info, Plus, Check } from "lucide-react"
+import { Info, Plus, Check, X } from "lucide-react"
 
 export function CourseSearch() {
   const {
@@ -16,6 +16,7 @@ export function CourseSearch() {
     setSelectedCourse,
     setIsDetailOpen,
     addCourseToWorklist,
+    removeCourseFromWorklist,
   } = useAppContext()
 
   const filteredCourses = courses.filter(
@@ -31,6 +32,10 @@ export function CourseSearch() {
 
   const handleAddCourse = (course: (typeof courses)[0], sectionId: string) => {
     addCourseToWorklist(course.id, sectionId)
+  }
+
+  const handleRemoveCourse = (courseId: string) => {
+    removeCourseFromWorklist(courseId)
   }
 
   const isCourseInWorklist = (courseId: string) => {
@@ -63,13 +68,31 @@ export function CourseSearch() {
                       <Badge variant="outline" className="bg-blue-50 text-blue-700 border-blue-200">
                         {course.credits} Credits
                       </Badge>
+                      {isCourseInWorklist(course.id) && (
+                        <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200">
+                          In Schedule
+                        </Badge>
+                      )}
                     </div>
                     <div className="text-lg font-medium mt-1">{course.title}</div>
                   </div>
-                  <Button variant="outline" size="sm" onClick={() => handleViewDetails(course)}>
-                    <Info className="h-4 w-4 mr-1" />
-                    Details
-                  </Button>
+                  <div className="flex gap-2">
+                    {isCourseInWorklist(course.id) && (
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        className="text-red-600 border-red-200 hover:bg-red-50"
+                        onClick={() => handleRemoveCourse(course.id)}
+                      >
+                        <X className="h-4 w-4 mr-1" />
+                        Remove
+                      </Button>
+                    )}
+                    <Button variant="outline" size="sm" onClick={() => handleViewDetails(course)}>
+                      <Info className="h-4 w-4 mr-1" />
+                      Details
+                    </Button>
+                  </div>
                 </div>
               </CardHeader>
               <CardContent>
@@ -118,25 +141,21 @@ export function CourseSearch() {
                                     : "Waitlist"}
                                 </div>
 
-                                <Button
-                                  size="sm"
-                                  variant={isCourseInWorklist(course.id) ? "default" : "outline"}
-                                  className={`${isCourseInWorklist(course.id) ? "bg-blue-600" : ""}`}
-                                  onClick={() => handleAddCourse(course, section.id)}
-                                  disabled={isCourseInWorklist(course.id)}
-                                >
-                                  {isCourseInWorklist(course.id) ? (
-                                    <>
-                                      <Check className="h-4 w-4 mr-1" />
-                                      Added
-                                    </>
-                                  ) : (
-                                    <>
-                                      <Plus className="h-4 w-4 mr-1" />
-                                      Add
-                                    </>
-                                  )}
-                                </Button>
+                                {isCourseInWorklist(course.id) ? (
+                                  <Button size="sm" variant="default" className="bg-green-600" disabled>
+                                    <Check className="h-4 w-4 mr-1" />
+                                    Added
+                                  </Button>
+                                ) : (
+                                  <Button
+                                    size="sm"
+                                    variant="outline"
+                                    onClick={() => handleAddCourse(course, section.id)}
+                                  >
+                                    <Plus className="h-4 w-4 mr-1" />
+                                    Add
+                                  </Button>
+                                )}
                               </div>
                             </div>
                           </div>
