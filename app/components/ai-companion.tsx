@@ -111,31 +111,33 @@ export function AICompanion() {
       </CardHeader>
 
       {/* Messages Area - Scrollable */}
-      <div className="flex-1 overflow-y-auto bg-gray-50 p-4">
-        {messages.map((message) => (
-          <div key={message.id} className={`mb-4 ${message.role === "ai" ? "flex" : "flex justify-end"}`}>
-            {message.role === "ai" && (
-              <div className="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center mr-2 flex-shrink-0">
-                {message.persona === "advisor" ? (
-                  <GraduationCap className="w-4 h-4 text-blue-600" />
-                ) : message.persona === "peer" ? (
-                  <User className="w-4 h-4 text-blue-600" />
-                ) : message.persona === "expert" ? (
-                  <User className="w-4 h-4 text-blue-600" />
-                ) : (
-                  <Users className="w-4 h-4 text-blue-600" />
-                )}
+      <div className="flex-1 bg-gray-50 p-4">
+        <div style={{maxHeight: 500, overflowY: "auto"}}>
+          {messages.map((message) => (
+            <div key={message.id} className={`mb-4 ${message.role === "ai" ? "flex" : "flex justify-end"}`}>
+              {message.role === "ai" && (
+                <div className="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center mr-2 flex-shrink-0">
+                  {message.persona === "advisor" ? (
+                    <GraduationCap className="w-4 h-4 text-blue-600" />
+                  ) : message.persona === "peer" ? (
+                    <User className="w-4 h-4 text-blue-600" />
+                  ) : message.persona === "expert" ? (
+                    <User className="w-4 h-4 text-blue-600" />
+                  ) : (
+                    <Users className="w-4 h-4 text-blue-600" />
+                  )}
+                </div>
+              )}
+              <div
+                className={`rounded-lg p-3 max-w-[80%] break-words ${
+                  message.role === "ai" ? "bg-white border border-gray-200 text-gray-800" : "bg-blue-600 text-white"
+                }`}
+              >
+                {message.content}
               </div>
-            )}
-            <div
-              className={`rounded-lg p-3 max-w-[80%] break-words ${
-                message.role === "ai" ? "bg-white border border-gray-200 text-gray-800" : "bg-blue-600 text-white"
-              }`}
-            >
-              {message.content}
             </div>
-          </div>
-        ))}
+          ))}
+        </div>
 
         {/* Course recommendation cards */}
         {activePersona === "advisor" && recommendedCourses.length > 0 && (
