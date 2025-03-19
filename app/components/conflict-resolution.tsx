@@ -85,14 +85,14 @@ export function ConflictResolution({ isOpen, onClose }: { isOpen: boolean; onClo
             </div>
           ) : (
             <div className="space-y-4">
-              {activeConflicts.map((conflict) => {
+              {activeConflicts.map((conflict, index) => {
                 const course1 = courses.find((c) => c.id === conflict.courseIds[0])
                 const course2 = courses.find((c) => c.id === conflict.courseIds[1])
 
                 if (!course1 || !course2) return null
 
                 return (
-                  <div key={conflict.id} className="border rounded-lg p-4 bg-amber-50 border-amber-200">
+                  <div key={`${conflict.id}-${index}`} className="border rounded-lg p-4 bg-amber-50 border-amber-200">
                     <div className="font-medium text-amber-800 mb-2">{conflict.description}</div>
 
                     <div className="grid grid-cols-2 gap-4 mt-4">

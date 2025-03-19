@@ -1,6 +1,6 @@
 "use client"
 
-import type React from "react"
+import React from "react"
 
 import { useState } from "react"
 import { useAppContext } from "../context/app-context"
@@ -53,7 +53,7 @@ export function CalendarGrid() {
 
           {/* Time slots */}
           {HOURS.map((hour) => (
-            <>
+            <React.Fragment key={`hour-${hour}`}>
               <div key={`time-${hour}`} className="h-16 flex items-center justify-end pr-2 text-sm text-gray-500">
                 {hour}:00
               </div>
@@ -165,7 +165,7 @@ export function CalendarGrid() {
                   </div>
                 )
               })}
-            </>
+            </React.Fragment>
           ))}
         </div>
       </CardContent>
