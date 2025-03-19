@@ -59,14 +59,13 @@ export function CalendarGrid() {
               </div>
               {DAYS.map((day) => {
                 const events = getEventsForTimeSlot(day, hour)
-
                 return (
                   <div key={`slot-${day}-${hour}`} className="h-16 border border-gray-200 relative">
-                    {events.map((event) => {
+                    {events.map((event, index) => {
                       if (eventStartsAtHour(event, hour)) {
                         return (
                           <div
-                            key={event.id}
+                            key={`${event.id}-${index}`}
                             className={`absolute inset-0 m-1 rounded p-1 flex flex-col cursor-pointer hover:opacity-90 transition-opacity`}
                             style={{
                               backgroundColor:

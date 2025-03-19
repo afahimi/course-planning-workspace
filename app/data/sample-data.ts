@@ -165,8 +165,8 @@ export const SAMPLE_COURSES: Course[] = [
         number: "001",
         instructor: "Dr. Emily Davis",
         schedule: [
-          { day: "Tuesday", startTime: "9:30", endTime: "11:00" },
-          { day: "Thursday", startTime: "9:30", endTime: "11:00" },
+          { day: "Tuesday", startTime: "10:00", endTime: "11:30" },
+          { day: "Thursday", startTime: "10:00", endTime: "11:30" },
         ],
         location: "Computer Science Building 200",
         seatsAvailable: 10,

@@ -10,26 +10,16 @@ const SAMPLE_COURSES: Course[] = [
   {
     id: "1", name: "Introduction to Computer Science", code: "CS101", credits: 3, time: "MWF 10:00-11:00",
     title: "",
-    description: "",
-    prerequisites: [],
-    corequisites: [],
-    sections: []
+
   },
   {
     id: "2", name: "Calculus I", code: "MATH101", credits: 4, time: "TTh 13:00-14:30",
     title: "",
-    description: "",
-    prerequisites: [],
-    corequisites: [],
-    sections: []
+
   },
   {
     id: "3", name: "Introduction to Psychology", code: "PSYC101", credits: 3, time: "MWF 14:00-15:00",
     title: "",
-    description: "",
-    prerequisites: [],
-    corequisites: [],
-    sections: []
   },
 ]
 

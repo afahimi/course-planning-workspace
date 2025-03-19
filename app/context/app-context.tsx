@@ -152,6 +152,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
   // Add a course to the current worklist
   const addCourseToWorklist = (courseId: string, sectionId: string) => {
     // Check if course is already in worklist
+
     if (currentWorklist.courses.includes(courseId)) {
       return
     }
@@ -162,7 +163,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
       courses: [...currentWorklist.courses, courseId],
       sections: [...currentWorklist.sections, sectionId],
     }
-
+    
     // Update the worklists array
     setWorklists((prev) => prev.map((wl) => (wl.id === currentWorklist.id ? updatedWorklist : wl)))
 
