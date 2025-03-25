@@ -8,6 +8,7 @@ import { CourseSearch } from "./components/course-search"
 import { CourseDetailPopup } from "./components/course-detail-popup"
 import { ConflictResolution } from "./components/conflict-resolution"
 import { RegistrationSuccess } from "./components/registration-success"
+import { ConflictTimer } from "./components/conflict-timer"
 import { TermSelector } from "./components/term-selector"
 import { WorklistSelector } from "./components/worklist-selector"
 import { PresetSelector } from "./components/preset-selector"
@@ -46,6 +47,8 @@ export default function RegistrationCompanion() {
   const [showPresetSelector, setShowPresetSelector] = useState(true)
   const [currentPreset, setCurrentPreset] = useState<number>(1)
   const [showRegistrationSuccess, setShowRegistrationSuccess] = useState(false)
+  const [initialConflicts, setInitialConflicts] = useState(0)
+  const [timerActive, setTimerActive] = useState(false)
 
   const handleRegister = () => {
     setShowRegistrationSuccess(true)
@@ -71,6 +74,12 @@ export default function RegistrationCompanion() {
     // Set conflicts from preset
     setConflicts(conflicts)
 
+    // Store initial conflict count for the timer
+    setInitialConflicts(conflicts.length)
+
+    // Start the timer
+    setTimerActive(true)
+
     // Close preset selector
     setShowPresetSelector(false)
   }
@@ -78,6 +87,7 @@ export default function RegistrationCompanion() {
   // Reset to preset selector
   const handleReset = () => {
     setShowPresetSelector(true)
+    setTimerActive(false)
   }
 
   // Set default term on first load
@@ -193,6 +203,15 @@ export default function RegistrationCompanion() {
                     </h2>
                   </div>
                   <div className="flex-1 overflow-auto p-4">
+                    {/* Timer component */}
+                    {/* {timerActive && !showPresetSelector && (
+                      <ConflictTimer
+                        isRunning={timerActive}
+                        conflicts={conflicts.length}
+                        initialConflicts={initialConflicts}
+                      />
+                    )} */}
+
                     <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
                       <div className="lg:col-span-2">
                         <CalendarGrid />

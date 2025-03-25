@@ -189,8 +189,8 @@ export const UNIVERSAL_COURSES: Course[] = [
         number: "001",
         instructor: "Dr. Jonathan Blake",
         schedule: [
-          { day: "Tuesday", startTime: "9:30", endTime: "11:00" },
-          { day: "Thursday", startTime: "9:30", endTime: "11:00" },
+          { day: "Tuesday", startTime: "9:00", endTime: "11:00" }, // Changed from 9:30 to 9:00
+          { day: "Thursday", startTime: "9:00", endTime: "11:00" }, // Changed from 9:30 to 9:00
         ],
         location: "Research Center 100",
         seatsAvailable: 10,
@@ -250,8 +250,8 @@ export const UNIVERSAL_COURSES: Course[] = [
         number: "001",
         instructor: "Prof. Samuel Washington",
         schedule: [
-          { day: "Tuesday", startTime: "13:30", endTime: "15:00" },
-          { day: "Thursday", startTime: "13:30", endTime: "15:00" },
+          { day: "Tuesday", startTime: "13:00", endTime: "15:00" }, // Changed from 13:30 to 13:00
+          { day: "Thursday", startTime: "13:00", endTime: "15:00" }, // Changed from 13:30 to 13:00
         ],
         location: "Humanities 150",
         seatsAvailable: 15,
@@ -275,8 +275,8 @@ export const UNIVERSAL_COURSES: Course[] = [
         number: "001",
         instructor: "Prof. Isabella Rodriguez",
         schedule: [
-          { day: "Monday", startTime: "15:30", endTime: "17:00" },
-          { day: "Wednesday", startTime: "15:30", endTime: "17:00" },
+          { day: "Monday", startTime: "15:00", endTime: "17:00" }, // Changed from 15:30 to 15:00
+          { day: "Wednesday", startTime: "15:00", endTime: "17:00" }, // Changed from 15:30 to 15:00
         ],
         location: "Arts Center 200",
         seatsAvailable: 20,
@@ -325,8 +325,8 @@ export const UNIVERSAL_COURSES: Course[] = [
         number: "001",
         instructor: "Dr. Alan Turing",
         schedule: [
-          { day: "Monday", startTime: "13:30", endTime: "15:00" },
-          { day: "Wednesday", startTime: "13:30", endTime: "15:00" },
+          { day: "Monday", startTime: "13:00", endTime: "15:00" }, // Changed from 13:30 to 13:00
+          { day: "Wednesday", startTime: "13:00", endTime: "15:00" }, // Changed from 13:30 to 13:00
         ],
         location: "Tech Building 220",
         seatsAvailable: 15,

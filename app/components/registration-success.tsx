@@ -10,8 +10,20 @@ import {
 } from "@/components/ui/dialog"
 import { Button } from "@/components/ui/button"
 import { CheckCircle } from "lucide-react"
+import { useAppContext } from "../context/app-context"
 
 export function RegistrationSuccess({ isOpen, onClose }: { isOpen: boolean; onClose: () => void }) {
+  const { currentWorklist, courses, currentTerm } = useAppContext()
+
+  // Get the actual courses in the worklist
+  const scheduledCourses = courses.filter((course) => currentWorklist.courses.includes(course.id))
+
+  // Calculate total credits
+  const totalCredits = scheduledCourses.reduce((sum, course) => sum + course.credits, 0)
+
+  // Generate a registration ID
+  const registrationId = `REG-${Math.floor(Math.random() * 900000) + 100000}`
+
   return (
     <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
       <DialogContent className="sm:max-w-md">
@@ -28,10 +40,10 @@ export function RegistrationSuccess({ isOpen, onClose }: { isOpen: boolean; onCl
         <div className="bg-green-50 p-4 rounded-md border border-green-200 text-green-800 text-sm">
           <p className="font-medium">Registration Details:</p>
           <ul className="mt-2 list-disc list-inside">
-            <li>Term: Winter 2024</li>
-            <li>Courses: {Math.floor(Math.random() * 3) + 3} courses registered</li>
-            <li>Credits: {Math.floor(Math.random() * 6) + 12} credits</li>
-            <li>Registration ID: REG-{Math.floor(Math.random() * 900000) + 100000}</li>
+            <li>Term: {currentTerm.name}</li>
+            <li>Courses: {scheduledCourses.length} courses registered</li>
+            <li>Credits: {totalCredits} credits</li>
+            <li>Registration ID: {registrationId}</li>
           </ul>
         </div>
         <DialogFooter className="sm:justify-center">
