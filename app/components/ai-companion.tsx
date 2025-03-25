@@ -8,7 +8,6 @@ import { Button } from "@/components/ui/button"
 import { CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { User, Users, GraduationCap, Plus, Info } from "lucide-react"
-import { CourseDetailPopup } from "./course-detail-popup"
 import { generateRecommendations } from "../data/preset-data"
 
 export function AICompanion() {
@@ -27,13 +26,14 @@ export function AICompanion() {
   const [inputValue, setInputValue] = useState("")
   const [recommendedCourses, setRecommendedCourses] = useState<typeof courses>([])
   const messagesEndRef = useRef<HTMLDivElement>(null)
+  const messagesContainerRef = useRef<HTMLDivElement>(null)
 
   // Auto-scroll to bottom of messages
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" })
   }, [messages])
 
-  // Update recommendations when input changes
+  // Update recommendations when input changes or worklist changes
   useEffect(() => {
     // Only update if input is at least 2 characters or empty
     if (inputValue.length >= 2 || inputValue === "") {
@@ -71,67 +71,67 @@ export function AICompanion() {
   }
 
   return (
-    <>
-      <div className="flex flex-col h-full overflow-hidden">
-        <CardHeader className="border-b bg-white flex-shrink-0">
-          <CardTitle>Registration Companion</CardTitle>
-          <div className="flex justify-center gap-4 mt-2">
-            <button
-              className={`flex flex-col items-center ${activePersona === "advisor" ? "text-blue-600" : "text-gray-500"}`}
-              onClick={() => setActivePersona("advisor")}
+    <div className="flex flex-col h-full">
+      {/* Header Section */}
+      <CardHeader className="flex-shrink-0 border-b bg-white">
+        <CardTitle className="mb-4">Registration Companion</CardTitle>
+        <div className="flex justify-center gap-4 mt-2">
+          <button
+            className={`flex flex-col items-center ${activePersona === "advisor" ? "text-blue-600" : "text-gray-500"}`}
+            onClick={() => setActivePersona("advisor")}
+          >
+            <div
+              className={`w-12 h-12 rounded-full flex items-center justify-center ${activePersona === "advisor" ? "bg-blue-100" : "bg-gray-100"}`}
             >
-              <div
-                className={`w-12 h-12 rounded-full flex items-center justify-center ${activePersona === "advisor" ? "bg-blue-100" : "bg-gray-100"}`}
-              >
-                <GraduationCap
-                  className={`w-6 h-6 ${activePersona === "advisor" ? "text-blue-600" : "text-gray-500"}`}
-                />
-              </div>
-              <span className="text-xs mt-1">Academic Advisor</span>
-            </button>
+              <GraduationCap className={`w-6 h-6 ${activePersona === "advisor" ? "text-blue-600" : "text-gray-500"}`} />
+            </div>
+            <span className="text-xs mt-1">Academic Advisor</span>
+          </button>
 
-            <button
-              className={`flex flex-col items-center ${activePersona === "peer" ? "text-blue-600" : "text-gray-500"}`}
-              onClick={() => setActivePersona("peer")}
+          <button
+            className={`flex flex-col items-center ${activePersona === "peer" ? "text-blue-600" : "text-gray-500"}`}
+            onClick={() => setActivePersona("peer")}
+          >
+            <div
+              className={`w-12 h-12 rounded-full flex items-center justify-center ${activePersona === "peer" ? "bg-blue-100" : "bg-gray-100"}`}
             >
-              <div
-                className={`w-12 h-12 rounded-full flex items-center justify-center ${activePersona === "peer" ? "bg-blue-100" : "bg-gray-100"}`}
-              >
-                <User className={`w-6 h-6 ${activePersona === "peer" ? "text-blue-600" : "text-gray-500"}`} />
-              </div>
-              <span className="text-xs mt-1">Peer Mentor</span>
-            </button>
+              <User className={`w-6 h-6 ${activePersona === "peer" ? "text-blue-600" : "text-gray-500"}`} />
+            </div>
+            <span className="text-xs mt-1">Peer Mentor</span>
+          </button>
 
-            <button
-              className={`flex flex-col items-center ${activePersona === "expert" ? "text-blue-600" : "text-gray-500"}`}
-              onClick={() => setActivePersona("expert")}
+          <button
+            className={`flex flex-col items-center ${activePersona === "expert" ? "text-blue-600" : "text-gray-500"}`}
+            onClick={() => setActivePersona("expert")}
+          >
+            <div
+              className={`w-12 h-12 rounded-full flex items-center justify-center ${activePersona === "expert" ? "bg-blue-100" : "bg-gray-100"}`}
             >
-              <div
-                className={`w-12 h-12 rounded-full flex items-center justify-center ${activePersona === "expert" ? "bg-blue-100" : "bg-gray-100"}`}
-              >
-                <Users className={`w-6 h-6 ${activePersona === "expert" ? "text-blue-600" : "text-gray-500"}`} />
-              </div>
-              <span className="text-xs mt-1">Program Expert</span>
-            </button>
-          </div>
-        </CardHeader>
+              <Users className={`w-6 h-6 ${activePersona === "expert" ? "text-blue-600" : "text-gray-500"}`} />
+            </div>
+            <span className="text-xs mt-1">Program Expert</span>
+          </button>
+        </div>
+      </CardHeader>
 
-        <div className="flex-1 overflow-auto p-4 bg-gray-50">
-          {messages.map((message, index) => (
+      {/* Messages Area - Scrollable */}
+      <div className="flex-1 bg-gray-50 overflow-hidden flex flex-col">
+        <div ref={messagesContainerRef} className="flex-1 overflow-y-auto p-4">
+          {messages.map((message) => (
             <div key={message.id} className={`mb-4 ${message.role === "ai" ? "flex" : "flex justify-end"}`}>
               {message.role === "ai" && (
                 <div className="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center mr-2 flex-shrink-0">
                   {message.persona === "advisor" ? (
                     <GraduationCap className="w-4 h-4 text-blue-600" />
                   ) : message.persona === "peer" ? (
-                    <User className="w-4 h-4 text-blue-600" />
+                    <User className="w-4 w-4 text-blue-600" />
                   ) : (
-                    <Users className="w-4 h-4 text-blue-600" />
+                    <Users className="w-4 w-4 text-blue-600" />
                   )}
                 </div>
               )}
               <div
-                className={`rounded-lg p-3 max-w-[80%] ${
+                className={`rounded-lg p-3 max-w-[80%] break-words ${
                   message.role === "ai" ? "bg-white border border-gray-200 text-gray-800" : "bg-blue-600 text-white"
                 }`}
               >
@@ -140,9 +140,9 @@ export function AICompanion() {
             </div>
           ))}
 
-          {/* Dynamic course recommendation cards */}
+          {/* Course recommendation cards */}
           {activePersona === "advisor" && recommendedCourses.length > 0 && (
-            <div className="mt-6">
+            <div className="mt-6 mb-4">
               <div className="text-sm font-medium text-gray-500 mb-2">
                 {inputValue ? `Courses related to "${inputValue}":` : "Recommended Courses:"}
               </div>
@@ -182,25 +182,25 @@ export function AICompanion() {
             </div>
           )}
 
+          {/* Scroll anchor element */}
           <div ref={messagesEndRef} />
         </div>
-
-        <CardFooter className="border-t p-4 bg-white flex-shrink-0">
-          <div className="flex w-full gap-2">
-            <Input
-              placeholder="Search for courses or ask for help..."
-              className="flex-1"
-              value={inputValue}
-              onChange={(e) => setInputValue(e.target.value)}
-              onKeyDown={handleKeyPress}
-            />
-            <Button onClick={handleSendMessage}>Send</Button>
-          </div>
-        </CardFooter>
       </div>
 
-      <CourseDetailPopup isOpen={false} onClose={() => setIsDetailOpen(false)} course={null} />
-    </>
+      {/* Footer - Fixed at Bottom */}
+      <CardFooter className="flex-shrink-0 border-t p-4 bg-white">
+        <div className="flex w-full gap-2">
+          <Input
+            placeholder="Ask me anything about registration..."
+            className="flex-1"
+            value={inputValue}
+            onChange={(e) => setInputValue(e.target.value)}
+            onKeyDown={handleKeyPress}
+          />
+          <Button onClick={handleSendMessage}>Send</Button>
+        </div>
+      </CardFooter>
+    </div>
   )
 }
 
