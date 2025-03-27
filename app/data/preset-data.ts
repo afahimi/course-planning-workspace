@@ -350,8 +350,22 @@ export const UNIVERSAL_COURSES: Course[] = [
 export function generatePresetData(presetId: number) {
   const allCourses = UNIVERSAL_COURSES
 
+  // Sandbox Mode: Empty schedule with no courses or conflicts
+  if (presetId === 0) {
+    return {
+      worklist: {
+        id: "sandbox",
+        name: "Sandbox Mode",
+        courses: [],
+        sections: [],
+      },
+      events: [],
+      conflicts: [],
+    }
+  }
+
   // Preset 1: No conflicts - Basic schedule
-  if (presetId === 1) {
+  else if (presetId === 1) {
     return {
       worklist: {
         id: "preset-1",

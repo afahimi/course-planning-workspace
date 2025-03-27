@@ -80,6 +80,9 @@ export default function RegistrationCompanion() {
     // Start the timer
     setTimerActive(true)
 
+    // Start the timer only if not in sandbox mode and there are conflicts
+    setTimerActive(presetId !== 0 && conflicts.length > 0)
+
     // Close preset selector
     setShowPresetSelector(false)
   }
