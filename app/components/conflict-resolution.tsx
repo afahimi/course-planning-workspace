@@ -108,111 +108,110 @@ export function ConflictResolution({
   }
 
   // Improved handleTryAlternative that doesn't remove the course first
-const handleTryAlternative = (conflict: (typeof conflicts)[0], courseId: string) => {
-  console.log("Starting handleTryAlternative for courseId:", courseId);
+  const handleTryAlternative = (conflict: (typeof conflicts)[0], courseId: string) => {
+    // Find the course
+    const course = courses.find((c) => c.id === courseId)
+    if (!course) {
+      console.error("Course not found:", courseId)
+      return
+    }
   
-  // Find the course
-  const course = courses.find((c) => c.id === courseId);
-  if (!course) {
-    console.error("Course not found:", courseId);
-    return;
-  }
+    // Find the current section ID for this course in the worklist
+    const courseIndex = currentWorklist.courses.indexOf(courseId)
+    if (courseIndex === -1) {
+      console.error("Course not in worklist:", courseId)
+      return
+    }
   
-  // Find the current section ID for this course in the worklist
-  const courseIndex = currentWorklist.courses.indexOf(courseId);
-  if (courseIndex === -1) {
-    console.error("Course not in worklist:", courseId);
-    return;
-  }
+    const currentSectionId = currentWorklist.sections[courseIndex]
+    if (!currentSectionId) {
+      console.error("No section ID found for course:", courseId)
+      return
+    }
   
-  const currentSectionId = currentWorklist.sections[courseIndex];
-  if (!currentSectionId) {
-    console.error("No section ID found for course:", courseId);
-    return;
-  }
+    // Find the current section
+    const currentSection = course.sections.find((s) => s.id === currentSectionId)
+    if (!currentSection) {
+      console.error("Current section not found:", currentSectionId)
+      return
+    }
   
-  // Get alternative sections
-  const alternativeSections = course.sections.filter((section) => section.id !== currentSectionId);
+    // Get alternative sections
+    const alternativeSections = course.sections.filter((section) => section.id !== currentSectionId)
   
-  if (alternativeSections.length === 0) {
-    toast({
-      title: "No Alternative Sections",
-      description: `${course.code} doesn't have any alternative sections available.`,
-      variant: "destructive",
-    });
-    
-    setAlternativeSectionErrors((prev) => ({
-      ...prev,
-      [courseId]: `No alternative sections available for ${course.code}.`,
-    }));
-    
-    return;
-  }
+    if (alternativeSections.length === 0) {
+      // No alternative sections available
+      toast({
+        title: "No Alternative Sections",
+        description: `${course.code} doesn't have any alternative sections available.`,
+        variant: "destructive",
+      })
   
-  // Find a compatible section without removing the current one first
-  let foundCompatibleSection = false;
-  let compatibleSectionId = null;
+      // Set error message
+      setAlternativeSectionErrors((prev) => ({
+        ...prev,
+        [courseId]: `No alternative sections available for ${course.code}.`,
+      }))
   
-  // Try each alternative section
-  for (const section of alternativeSections) {
-    console.log(`Checking compatibility of section ${section.id} for course ${courseId}`);
-    
-    // Check if this section would create conflicts
-    const conflictingCourse = wouldCreateTimeConflict(courseId, section.id);
-    
-    if (!conflictingCourse) {
-      console.log(`Found compatible section: ${section.id}`);
-      foundCompatibleSection = true;
-      compatibleSectionId = section.id;
-      break;
-    } else {
-      console.log(`Section ${section.id} conflicts with: ${conflictingCourse}`);
+      return
+    }
+  
+    // Remove the current section
+    removeCourseFromWorklist(courseId)
+  
+    // Try to find a section that doesn't create conflicts
+    let foundNonConflictingSection = false
+  
+    for (const section of alternativeSections) {
+      const conflictingCourse = wouldCreateTimeConflict(courseId, section.id)
+  
+      if (!conflictingCourse) {
+        // Add the non-conflicting section
+        addCourseToWorklist(courseId, section.id)
+  
+        // Mark this conflict as resolved
+        setResolvedConflicts((prev) => [...prev, conflict.id])
+        
+        // IMPORTANT ADDITION: Also remove from global conflicts array
+        setConflicts((prev) => prev.filter((c) => c.id !== conflict.id))
+  
+        // Clear any error for this course
+        setAlternativeSectionErrors((prev) => {
+          const newErrors = { ...prev }
+          delete newErrors[courseId]
+          return newErrors
+        })
+  
+        // Show success toast
+        toast({
+          title: "Section Changed",
+          description: `Successfully switched to ${course.code} section ${section.number}`,
+          variant: "default",
+        })
+  
+        foundNonConflictingSection = true
+        break
+      }
+    }
+  
+    if (!foundNonConflictingSection) {
+      // If we couldn't find a non-conflicting section, add back the original one
+      addCourseToWorklist(courseId, currentSectionId)
+  
+      // Set error message
+      setAlternativeSectionErrors((prev) => ({
+        ...prev,
+        [courseId]: `All alternative sections for ${course.code} also have conflicts. Try removing a conflicting course instead.`,
+      }))
+  
+      // Show error toast
+      toast({
+        title: "No Compatible Sections",
+        description: `All alternative sections for ${course.code} also have conflicts with your schedule.`,
+        variant: "destructive",
+      })
     }
   }
-  
-  // If we found a compatible section, update the course directly
-  if (foundCompatibleSection && compatibleSectionId) {
-    console.log(`Updating course ${courseId} with section ${compatibleSectionId}`);
-    
-    // Use addCourseToWorklist which now handles section updates
-    addCourseToWorklist(courseId, compatibleSectionId);
-    
-    // Mark this conflict as resolved
-    setResolvedConflicts((prev) => [...prev, conflict.id]);
-    
-    // Clear any error for this course
-    setAlternativeSectionErrors((prev) => {
-      const newErrors = { ...prev };
-      delete newErrors[courseId];
-      return newErrors;
-    });
-    
-    // Get section info for the toast
-    const selectedSection = alternativeSections.find(s => s.id === compatibleSectionId);
-    
-    // Show success toast
-    toast({
-      title: "Section Changed",
-      description: `Successfully switched to ${course.code} section ${selectedSection?.number || compatibleSectionId}`,
-      variant: "default",
-    });
-  } else {
-    console.log("No compatible sections found");
-    
-    // If we couldn't find a non-conflicting section
-    setAlternativeSectionErrors((prev) => ({
-      ...prev,
-      [courseId]: `All alternative sections for ${course.code} also have conflicts. Try removing a conflicting course instead.`,
-    }));
-    
-    // Show error toast
-    toast({
-      title: "No Compatible Sections",
-      description: `All alternative sections for ${course.code} also have conflicts with your schedule.`,
-      variant: "destructive",
-    });
-  }
-}
 
   const handleAddPrerequisite = (conflict: (typeof conflicts)[0]) => {
     // Extract prerequisite course code from description
