@@ -214,44 +214,71 @@ export function ConflictResolution({
   }
 
   const handleAddPrerequisite = (conflict: (typeof conflicts)[0]) => {
+    console.log("Starting handleAddPrerequisite with conflict:", conflict);
+    
     // Extract prerequisite course code from description
-    const description = conflict.description
-    const prereqCodeMatch = description.match(/prerequisite ([A-Z]+ \d+)/)
-
+    const description = conflict.description;
+    const prereqCodeMatch = description.match(/prerequisite ([A-Z]+ \d+)/);
+    
+    console.log("Regex match result:", prereqCodeMatch);
+    
     if (prereqCodeMatch && prereqCodeMatch[1]) {
-      const prereqCode = prereqCodeMatch[1]
-
+      const prereqCode = prereqCodeMatch[1];
+      console.log("Found prerequisite code:", prereqCode);
+      
       // Find the prerequisite course
-      const prereqCourse = courses.find((c) => c.code === prereqCode)
-
+      const prereqCourse = courses.find((c) => c.code === prereqCode);
+      console.log("Prerequisite course found:", prereqCourse);
+      
       if (prereqCourse && prereqCourse.sections.length > 0) {
+        console.log("Prerequisite course has sections:", prereqCourse.sections);
+        
         // Check if adding this prerequisite would create new conflicts
-        const conflictingCourse = wouldCreateTimeConflict(prereqCourse.id, prereqCourse.sections[0].id)
-
+        const conflictingCourse = wouldCreateTimeConflict(prereqCourse.id, prereqCourse.sections[0].id);
+        console.log("Conflict check result:", conflictingCourse);
+        
         if (conflictingCourse) {
           // Show error toast
           toast({
             title: "Prerequisite Conflict",
             description: `Adding ${prereqCode} would create a time conflict with ${conflictingCourse}.`,
             variant: "destructive",
-          })
-
-          return
+          });
+          
+          return;
         }
-
+        
         // Add the first section of the prerequisite course
-        addCourseToWorklist(prereqCourse.id, prereqCourse.sections[0].id)
-
+        console.log("Adding prerequisite course to worklist:", prereqCourse.id, prereqCourse.sections[0].id);
+        addCourseToWorklist(prereqCourse.id, prereqCourse.sections[0].id);
+        
         // Mark this conflict as resolved
-        setResolvedConflicts((prev) => [...prev, conflict.id])
-
+        setResolvedConflicts((prev) => [...prev, conflict.id]);
+        
+        // IMPORTANT: Remove the conflict from the global conflicts array
+        setConflicts((prev) => prev.filter((c) => c.id !== conflict.id));
+        
         // Show success toast
         toast({
           title: "Prerequisite Added",
           description: `Successfully added ${prereqCode} to your schedule.`,
           variant: "default",
-        })
+        });
+      } else {
+        console.error("Prerequisite course not found or has no sections:", prereqCode);
+        toast({
+          title: "Prerequisite Not Available",
+          description: `The required prerequisite ${prereqCode} could not be found or has no available sections.`,
+          variant: "destructive",
+        });
       }
+    } else {
+      console.error("Failed to extract prerequisite code from description:", description);
+      toast({
+        title: "Error Adding Prerequisite",
+        description: "Could not determine which prerequisite course to add.",
+        variant: "destructive",
+      });
     }
   }
 
