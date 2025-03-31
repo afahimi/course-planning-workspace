@@ -25,8 +25,15 @@ export function ConflictResolution({
   onClose: () => void
   handleRegister: () => void
 }) {
-  const { conflicts, courses, removeCourseFromWorklist, addCourseToWorklist, calendarEvents, currentWorklist } =
-    useAppContext()
+  const {
+    conflicts,
+    courses,
+    removeCourseFromWorklist,
+    addCourseToWorklist,
+    calendarEvents,
+    currentWorklist,
+    setConflicts,
+  } = useAppContext()
 
   const [resolvedConflicts, setResolvedConflicts] = useState<string[]>([])
   const [activeTab, setActiveTab] = useState("all")
@@ -107,7 +114,8 @@ export function ConflictResolution({
     return hours + minutes / 60
   }
 
-  // Improved handleTryAlternative that doesn't remove the course first
+  // Update the handleTryAlternative function to set a specific error message for no alternatives
+
   const handleTryAlternative = (conflict: (typeof conflicts)[0], courseId: string) => {
     // Find the course
     const course = courses.find((c) => c.id === courseId)
@@ -115,30 +123,30 @@ export function ConflictResolution({
       console.error("Course not found:", courseId)
       return
     }
-  
+
     // Find the current section ID for this course in the worklist
     const courseIndex = currentWorklist.courses.indexOf(courseId)
     if (courseIndex === -1) {
       console.error("Course not in worklist:", courseId)
       return
     }
-  
+
     const currentSectionId = currentWorklist.sections[courseIndex]
     if (!currentSectionId) {
       console.error("No section ID found for course:", courseId)
       return
     }
-  
+
     // Find the current section
     const currentSection = course.sections.find((s) => s.id === currentSectionId)
     if (!currentSection) {
       console.error("Current section not found:", currentSectionId)
       return
     }
-  
+
     // Get alternative sections
     const alternativeSections = course.sections.filter((section) => section.id !== currentSectionId)
-  
+
     if (alternativeSections.length === 0) {
       // No alternative sections available
       toast({
@@ -146,64 +154,64 @@ export function ConflictResolution({
         description: `${course.code} doesn't have any alternative sections available.`,
         variant: "destructive",
       })
-  
+
       // Set error message
       setAlternativeSectionErrors((prev) => ({
         ...prev,
-        [courseId]: `No alternative sections available for ${course.code}.`,
+        [courseId]: `no-alternatives`, // Special flag for no alternatives
       }))
-  
+
       return
     }
-  
+
     // Remove the current section
     removeCourseFromWorklist(courseId)
-  
+
     // Try to find a section that doesn't create conflicts
     let foundNonConflictingSection = false
-  
+
     for (const section of alternativeSections) {
       const conflictingCourse = wouldCreateTimeConflict(courseId, section.id)
-  
+
       if (!conflictingCourse) {
         // Add the non-conflicting section
         addCourseToWorklist(courseId, section.id)
-  
+
         // Mark this conflict as resolved
         setResolvedConflicts((prev) => [...prev, conflict.id])
-        
+
         // IMPORTANT ADDITION: Also remove from global conflicts array
         setConflicts((prev) => prev.filter((c) => c.id !== conflict.id))
-  
+
         // Clear any error for this course
         setAlternativeSectionErrors((prev) => {
           const newErrors = { ...prev }
           delete newErrors[courseId]
           return newErrors
         })
-  
+
         // Show success toast
         toast({
           title: "Section Changed",
           description: `Successfully switched to ${course.code} section ${section.number}`,
           variant: "default",
         })
-  
+
         foundNonConflictingSection = true
         break
       }
     }
-  
+
     if (!foundNonConflictingSection) {
       // If we couldn't find a non-conflicting section, add back the original one
       addCourseToWorklist(courseId, currentSectionId)
-  
+
       // Set error message
       setAlternativeSectionErrors((prev) => ({
         ...prev,
         [courseId]: `All alternative sections for ${course.code} also have conflicts. Try removing a conflicting course instead.`,
       }))
-  
+
       // Show error toast
       toast({
         title: "No Compatible Sections",
@@ -214,71 +222,44 @@ export function ConflictResolution({
   }
 
   const handleAddPrerequisite = (conflict: (typeof conflicts)[0]) => {
-    console.log("Starting handleAddPrerequisite with conflict:", conflict);
-    
     // Extract prerequisite course code from description
-    const description = conflict.description;
-    const prereqCodeMatch = description.match(/prerequisite ([A-Z]+ \d+)/);
-    
-    console.log("Regex match result:", prereqCodeMatch);
-    
+    const description = conflict.description
+    const prereqCodeMatch = description.match(/prerequisite ([A-Z]+ \d+)/)
+
     if (prereqCodeMatch && prereqCodeMatch[1]) {
-      const prereqCode = prereqCodeMatch[1];
-      console.log("Found prerequisite code:", prereqCode);
-      
+      const prereqCode = prereqCodeMatch[1]
+
       // Find the prerequisite course
-      const prereqCourse = courses.find((c) => c.code === prereqCode);
-      console.log("Prerequisite course found:", prereqCourse);
-      
+      const prereqCourse = courses.find((c) => c.code === prereqCode)
+
       if (prereqCourse && prereqCourse.sections.length > 0) {
-        console.log("Prerequisite course has sections:", prereqCourse.sections);
-        
         // Check if adding this prerequisite would create new conflicts
-        const conflictingCourse = wouldCreateTimeConflict(prereqCourse.id, prereqCourse.sections[0].id);
-        console.log("Conflict check result:", conflictingCourse);
-        
-        if (conflictingCourse) {
-          // Show error toast
-          toast({
-            title: "Prerequisite Conflict",
-            description: `Adding ${prereqCode} would create a time conflict with ${conflictingCourse}.`,
-            variant: "destructive",
-          });
-          
-          return;
-        }
-        
+        const conflictingCourse = wouldCreateTimeConflict(prereqCourse.id, prereqCourse.sections[0].id)
+
+        // if (conflictingCourse) {
+        //   // Show error toast
+        //   toast({
+        //     title: "Prerequisite Conflict",
+        //     description: `Adding ${prereqCode} would create a time conflict with ${conflictingCourse}.`,
+        //     variant: "destructive",
+        //   })
+
+        //   return
+        // }
+
         // Add the first section of the prerequisite course
-        console.log("Adding prerequisite course to worklist:", prereqCourse.id, prereqCourse.sections[0].id);
-        addCourseToWorklist(prereqCourse.id, prereqCourse.sections[0].id);
-        
+        addCourseToWorklist(prereqCourse.id, prereqCourse.sections[0].id)
+
         // Mark this conflict as resolved
-        setResolvedConflicts((prev) => [...prev, conflict.id]);
-        
-        // IMPORTANT: Remove the conflict from the global conflicts array
-        setConflicts((prev) => prev.filter((c) => c.id !== conflict.id));
-        
+        setResolvedConflicts((prev) => [...prev, conflict.id])
+
         // Show success toast
         toast({
           title: "Prerequisite Added",
           description: `Successfully added ${prereqCode} to your schedule.`,
           variant: "default",
-        });
-      } else {
-        console.error("Prerequisite course not found or has no sections:", prereqCode);
-        toast({
-          title: "Prerequisite Not Available",
-          description: `The required prerequisite ${prereqCode} could not be found or has no available sections.`,
-          variant: "destructive",
-        });
+        })
       }
-    } else {
-      console.error("Failed to extract prerequisite code from description:", description);
-      toast({
-        title: "Error Adding Prerequisite",
-        description: "Could not determine which prerequisite course to add.",
-        variant: "destructive",
-      });
     }
   }
 
@@ -517,7 +498,11 @@ export function ConflictResolution({
                     {alternativeSectionErrors[course1.id] && (
                       <div className="mt-2 text-sm text-red-600 bg-red-50 p-2 rounded border border-red-200 flex items-start gap-1">
                         <AlertOctagon className="h-4 w-4 mt-0.5 flex-shrink-0" />
-                        <span>{alternativeSectionErrors[course1.id]}</span>
+                        <span>
+                          {alternativeSectionErrors[course1.id] === "no-alternatives"
+                            ? "No alternative sections available for this course."
+                            : alternativeSectionErrors[course1.id]}
+                        </span>
                       </div>
                     )}
 
@@ -531,7 +516,7 @@ export function ConflictResolution({
                         <X className="h-4 w-4 mr-2" />
                         Remove Course
                       </Button>
-                      {course1.sections.length > 1 && (
+                      {course1.sections.length > 1 ? (
                         <Button
                           size="sm"
                           onClick={() => handleTryAlternative(conflict, course1.id)}
@@ -539,6 +524,16 @@ export function ConflictResolution({
                         >
                           <Clock className="h-4 w-4 mr-2" />
                           Try Alternative Section
+                        </Button>
+                      ) : (
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          className="justify-start bg-gray-100 text-gray-500"
+                          disabled
+                        >
+                          <AlertOctagon className="h-4 w-4 mr-2" />
+                          No Alternative Sections
                         </Button>
                       )}
                     </div>
@@ -565,7 +560,11 @@ export function ConflictResolution({
                     {alternativeSectionErrors[course2.id] && (
                       <div className="mt-2 text-sm text-red-600 bg-red-50 p-2 rounded border border-red-200 flex items-start gap-1">
                         <AlertOctagon className="h-4 w-4 mt-0.5 flex-shrink-0" />
-                        <span>{alternativeSectionErrors[course2.id]}</span>
+                        <span>
+                          {alternativeSectionErrors[course2.id] === "no-alternatives"
+                            ? "No alternative sections available for this course."
+                            : alternativeSectionErrors[course2.id]}
+                        </span>
                       </div>
                     )}
 
@@ -579,7 +578,7 @@ export function ConflictResolution({
                         <X className="h-4 w-4 mr-2" />
                         Remove Course
                       </Button>
-                      {course2.sections.length > 1 && (
+                      {course2.sections.length > 1 ? (
                         <Button
                           size="sm"
                           onClick={() => handleTryAlternative(conflict, course2.id)}
@@ -587,6 +586,16 @@ export function ConflictResolution({
                         >
                           <Clock className="h-4 w-4 mr-2" />
                           Try Alternative Section
+                        </Button>
+                      ) : (
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          className="justify-start bg-gray-100 text-gray-500"
+                          disabled
+                        >
+                          <AlertOctagon className="h-4 w-4 mr-2" />
+                          No Alternative Sections
                         </Button>
                       )}
                     </div>
