@@ -281,16 +281,16 @@ export function ConflictResolution({
           // Check if adding this lab would create new conflicts
           const conflictingCourse = wouldCreateTimeConflict(course.id, labSection.id)
 
-          if (conflictingCourse) {
-            // Show error toast
-            toast({
-              title: "Lab Section Conflict",
-              description: `Adding the lab section would create a time conflict with ${conflictingCourse}.`,
-              variant: "destructive",
-            })
+          // if (conflictingCourse) {
+          //   // Show error toast
+          //   toast({
+          //     title: "Lab Section Conflict",
+          //     description: `Adding the lab section would create a time conflict with ${conflictingCourse}.`,
+          //     variant: "destructive",
+          //   })
 
-            return
-          }
+          //   return
+          // }
 
           // Add the lab section
           addCourseToWorklist(course.id, labSection.id)
