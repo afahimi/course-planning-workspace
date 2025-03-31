@@ -235,35 +235,91 @@ Click on the conflict notification at the top right to see details and fix them.
     return `That's a good question. As your ${persona === "advisor" ? "academic advisor" : persona === "peer" ? "peer mentor" : "program expert"}, I'd suggest exploring the available courses and resolving any schedule conflicts. Is there a specific subject you're interested in learning more about?`
   }
 
-  // Add a course to the current worklist
   const addCourseToWorklist = (courseId: string, sectionId: string) => {
     // Check if course is already in worklist
-    if (currentWorklist.courses.includes(courseId)) {
-      return
+    const existingIndex = currentWorklist.courses.indexOf(courseId);
+    
+    if (existingIndex !== -1) {
+      // UPDATE existing course with the new section instead of returning
+      console.log(`Updating existing course ${courseId} with section ${sectionId}`);
+      
+      // Create new arrays to avoid mutation issues
+      const updatedCourses = [...currentWorklist.courses];
+      const updatedSections = [...currentWorklist.sections];
+      
+      // Update the section for this course
+      updatedSections[existingIndex] = sectionId;
+      
+      // Create updated worklist
+      const updatedWorklist = {
+        ...currentWorklist,
+        courses: updatedCourses,
+        sections: updatedSections,
+      };
+      
+      // Update worklists array
+      setWorklists((prev) => prev.map((wl) => (wl.id === currentWorklist.id ? updatedWorklist : wl)));
+      
+      // Update current worklist
+      setCurrentWorklist(updatedWorklist);
+      
+      // Remove old calendar events for this course
+      setCalendarEvents((prev) => prev.filter((event) => event.courseId !== courseId));
+      
+      // Add new calendar events for this section
+      const course = courses.find((c) => c.id === courseId);
+      const section = course?.sections.find((s) => s.id === sectionId);
+      
+      if (course && section) {
+        const newEvents: CalendarEvent[] = section.schedule.map((time) => {
+          const startHour = parseTimeToHour(time.startTime);
+          const endHour = parseTimeToHour(time.endTime);
+          
+          return {
+            id: `${sectionId}-${time.day}-${startHour}`,
+            courseId,
+            sectionId,
+            title: `${course.code}: ${section.type} ${section.number}`,
+            day: time.day,
+            startHour,
+            endHour,
+            color: course.color || getRandomColor(course.code),
+            location: section.location,
+          };
+        });
+        
+        setCalendarEvents((prev) => [...prev, ...newEvents]);
+        
+        // Check for conflicts
+        detectConflicts(newEvents);
+      }
+      
+      return;
     }
-
+    
+    // If the course is not in the worklist, add it as normal
     // Update the current worklist
     const updatedWorklist = {
       ...currentWorklist,
       courses: [...currentWorklist.courses, courseId],
       sections: [...currentWorklist.sections, sectionId],
-    }
-
+    };
+    
     // Update the worklists array
-    setWorklists((prev) => prev.map((wl) => (wl.id === currentWorklist.id ? updatedWorklist : wl)))
-
+    setWorklists((prev) => prev.map((wl) => (wl.id === currentWorklist.id ? updatedWorklist : wl)));
+    
     // Update the current worklist
-    setCurrentWorklist(updatedWorklist)
-
+    setCurrentWorklist(updatedWorklist);
+    
     // Add calendar events for this course section
-    const course = courses.find((c) => c.id === courseId)
-    const section = course?.sections.find((s) => s.id === sectionId)
-
+    const course = courses.find((c) => c.id === courseId);
+    const section = course?.sections.find((s) => s.id === sectionId);
+    
     if (course && section) {
       const newEvents: CalendarEvent[] = section.schedule.map((time) => {
-        const startHour = parseTimeToHour(time.startTime)
-        const endHour = parseTimeToHour(time.endTime)
-
+        const startHour = parseTimeToHour(time.startTime);
+        const endHour = parseTimeToHour(time.endTime);
+        
         return {
           id: `${sectionId}-${time.day}-${startHour}`,
           courseId,
@@ -274,18 +330,18 @@ Click on the conflict notification at the top right to see details and fix them.
           endHour,
           color: course.color || getRandomColor(course.code),
           location: section.location,
-        }
-      })
-
-      setCalendarEvents((prev) => [...prev, ...newEvents])
-
+        };
+      });
+      
+      setCalendarEvents((prev) => [...prev, ...newEvents]);
+      
       // Check for conflicts
-      detectConflicts(newEvents)
-
+      detectConflicts(newEvents);
+      
       // Check for prerequisite conflicts
-      checkPrerequisiteConflicts(course)
+      checkPrerequisiteConflicts(course);
     }
-  }
+  };
 
   // Check for prerequisite conflicts
   const checkPrerequisiteConflicts = (course: Course) => {
