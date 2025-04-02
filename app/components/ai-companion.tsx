@@ -141,7 +141,7 @@ export function AICompanion() {
           ))}
 
           {/* Course recommendation cards */}
-          {activePersona === "advisor" && recommendedCourses.length > 0 && (
+          {activePersona === "advisor" && recommendedCourses.length > 0 && messages.some(msg => msg.role === "user") && (
             <div className="mt-6 mb-4">
               <div className="text-sm font-medium text-gray-500 mb-2">
                 {inputValue ? `Courses related to "${inputValue}":` : "Recommended Courses:"}
